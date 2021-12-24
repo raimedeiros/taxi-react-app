@@ -9,14 +9,14 @@ from django.contrib.auth.models import Group
 class UserSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    group = serializers.CharField() # new
+    group = serializers.CharField()
 
     def validate(self, data):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError('Passwords must match.')
         return data
 
-    def create(self, validated_data): # changed
+    def create(self, validated_data):
         group_data = validated_data.pop('group')
         group, _ = Group.objects.get_or_create(name=group_data)
         data = {
@@ -33,7 +33,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = (
             'id', 'username', 'password1', 'password2',
-            'first_name', 'last_name', 'group', # new
+            'first_name', 'last_name', 'group',
+            'photo', # new
         )
         read_only_fields = ('id',)
 
