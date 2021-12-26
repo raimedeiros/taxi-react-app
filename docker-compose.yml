@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -11,6 +12,7 @@ services:
       - taxi-redis
       - taxi-database
     environment:
+    environment:
       - PGDATABASE=taxi
       - PGUSER=taxi
       - PGPASSWORD=taxi
@@ -18,11 +20,12 @@ services:
       - REDIS_URL=redis://taxi-redis:6379/0
     ports:
       - 8003:8000
+    volumes: # new
+    - ./server:/usr/src/app
 
   taxi-redis:
     container_name: taxi-redis
     image: redis:6-alpine
-
 
   taxi-database:
     container_name: taxi-database
@@ -34,6 +37,21 @@ services:
       - 5432
     volumes:
       - taxi-database:/var/lib/postgresql/data
+
+  taxi-client:
+    build:
+      context: ./client
+    command: npm start
+    container_name: taxi-client
+    depends_on:
+      - taxi-server
+    ports:
+      - 3001:3000
+    stdin_open: true
+    volumes:  # new
+      - ./client:/usr/src/app
+    environment:  # new
+      - CHOKIDAR_USEPOLLING=true
 
 volumes:
   taxi-database:
