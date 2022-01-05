@@ -1,21 +1,8 @@
 const faker = require("faker");
 
-// changed
 const email = faker.internet.email();
 const firstName = faker.name.firstName();
 const lastName = faker.name.lastName();
-
-const logIn = () => {
-  // Capture HTTP requests.
-  cy.intercept("POST", "log_in").as("logIn");
-
-  // Log into the app.
-  cy.visit("/#/log-in");
-  cy.get("input#username").type(email); // changed
-  cy.get("input#password").type("pAssw0rd", { log: false }); // changed
-  cy.get("button").contains("Log in").click();
-  cy.wait("@logIn");
-};
 
 describe("Authentication", function () {
   it("Can sign up.", function () {
@@ -23,13 +10,13 @@ describe("Authentication", function () {
   });
 
   it("Cannot visit the sign up page when logged in.", function () {
-    logIn();
+    cy.logIn(email); // changed
     cy.visit("/#/sign-up");
     cy.hash().should("eq", "#/");
   });
 
   it("Can log out.", function () {
-    logIn();
+    cy.logIn(email); // changed
     cy.get("button")
       .contains("Log out")
       .click()
@@ -47,7 +34,7 @@ describe("Authentication", function () {
       },
     }).as("signUp");
     cy.visit("/#/sign-up");
-    cy.get("input#username").type(email); // changed
+    cy.get("input#username").type(email);
     cy.get("input#firstName").type("Gary");
     cy.get("input#lastName").type("Cole");
     cy.get("input#password").type("pAssw0rd", { log: false });
@@ -64,19 +51,19 @@ describe("Authentication", function () {
   });
 
   it("Can log in.", function () {
-    logIn();
+    cy.logIn(email); // changed
     cy.hash().should("eq", "#/");
     cy.get("button").contains("Log out");
   });
 
   it("Cannot visit the login page when logged in.", function () {
-    logIn();
+    cy.logIn(email); // changed
     cy.visit("/#/log-in");
     cy.hash().should("eq", "#/");
   });
 
   it("Cannot see links when logged in.", function () {
-    logIn();
+    cy.logIn(email); // changed
     cy.get("button#signUp").should("not.exist");
     cy.get("button#logIn").should("not.exist");
   });
@@ -92,8 +79,8 @@ describe("Authentication", function () {
       },
     }).as("logIn");
     cy.visit("/#/log-in");
-    cy.get("input#username").type(email); // changed
-    cy.get("input#password").type("pAssw0rd", { log: false }); // changed
+    cy.get("input#username").type(email);
+    cy.get("input#password").type("pAssw0rd", { log: false });
     cy.get("button").contains("Log in").click();
     cy.wait("@logIn");
     cy.get("div.alert").contains(
