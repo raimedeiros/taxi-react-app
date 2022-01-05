@@ -1,12 +1,47 @@
-import React from "react";
-import { Breadcrumb, Card, Col, Row } from "react-bootstrap";
-import { Redirect } from "react-router-dom"; // new
-import { isRider } from "../services/AuthService"; // new
+import React, { useEffect, useState } from "react"; // changed
+import { Breadcrumb, Col, Row } from "react-bootstrap";
+import { Redirect } from "react-router-dom";
+
+import TripCard from "./TripCard"; // new
+import { isRider } from "../services/AuthService";
+import { getTrips } from "../services/TripService"; // new
 
 function Rider(props) {
+  const [trips, setTrips] = useState([]);
+
+  // new
+  useEffect(() => {
+    const loadTrips = async () => {
+      const { response, isError } = await getTrips();
+      if (isError) {
+        setTrips([]);
+      } else {
+        setTrips(response.data);
+      }
+    };
+    loadTrips();
+  }, []);
+
   if (!isRider()) {
     return <Redirect to="/" />;
   }
+
+  const getCurrentTrips = () => {
+    return trips.filter(trip => {
+      return (
+        trip.driver !== null &&
+        trip.status !== "REQUESTED" &&
+        trip.status !== "COMPLETED"
+      );
+    });
+  };
+
+  const getCompletedTrips = () => {
+    return trips.filter(trip => {
+      return trip.status === "COMPLETED";
+    });
+  };
+
   return (
     <Row>
       <Col lg={12}>
@@ -14,14 +49,22 @@ function Rider(props) {
           <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
           <Breadcrumb.Item active>Dashboard</Breadcrumb.Item>
         </Breadcrumb>
-        <Card className="mb-3">
-          <Card.Header>Current Trip</Card.Header>
-          <Card.Body>No trips.</Card.Body>
-        </Card>
-        <Card className="mb-3">
-          <Card.Header>Recent Trips</Card.Header>
-          <Card.Body>No trips.</Card.Body>
-        </Card>
+
+        {/* changed */}
+        <TripCard
+          title="Current Trip"
+          trips={getCurrentTrips()}
+          group="rider"
+          otherGroup="driver"
+        />
+
+        {/* changed */}
+        <TripCard
+          title="Recent Trips"
+          trips={getCompletedTrips()}
+          group="rider"
+          otherGroup="driver"
+        />
       </Col>
     </Row>
   );

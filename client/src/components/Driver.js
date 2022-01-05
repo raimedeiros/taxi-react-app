@@ -1,12 +1,52 @@
-import React from "react";
-import { Breadcrumb, Card, Col, Row } from "react-bootstrap";
-import { Redirect } from "react-router-dom"; // new
-import { isDriver } from "../services/AuthService"; // new
+import React, { useEffect, useState } from "react"; // changed
+import { Breadcrumb, Col, Row } from "react-bootstrap"; // changed
+import { Redirect } from "react-router-dom";
+
+import TripCard from "./TripCard"; // new
+import { isDriver } from "../services/AuthService";
+import { getTrips } from "../services/TripService"; // new
 
 function Driver(props) {
+  // new
+  const [trips, setTrips] = useState([]);
+
+  // new
+  useEffect(() => {
+    const loadTrips = async () => {
+      const { response, isError } = await getTrips();
+      if (isError) {
+        setTrips([]);
+      } else {
+        setTrips(response.data);
+      }
+    };
+    loadTrips();
+  }, []);
+
   if (!isDriver()) {
     return <Redirect to="/" />;
   }
+
+  // new
+  const getCurrentTrips = () => {
+    return trips.filter(trip => {
+      return trip.driver !== null && trip.status !== "COMPLETED";
+    });
+  };
+
+  // new
+  const getRequestedTrips = () => {
+    return trips.filter(trip => {
+      return trip.status === "REQUESTED";
+    });
+  };
+
+  // new
+  const getCompletedTrips = () => {
+    return trips.filter(trip => {
+      return trip.status === "COMPLETED";
+    });
+  };
   return (
     <Row>
       <Col lg={12}>
@@ -14,18 +54,30 @@ function Driver(props) {
           <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
           <Breadcrumb.Item active>Dashboard</Breadcrumb.Item>
         </Breadcrumb>
-        <Card className="mb-3">
-          <Card.Header>Current Trip</Card.Header>
-          <Card.Body>No trips.</Card.Body>
-        </Card>
-        <Card className="mb-3">
-          <Card.Header>Requested Trips</Card.Header>
-          <Card.Body>No trips.</Card.Body>
-        </Card>
-        <Card className="mb-3">
-          <Card.Header>Recent Trips</Card.Header>
-          <Card.Body>No trips.</Card.Body>
-        </Card>
+
+        {/* changed */}
+        <TripCard
+          title="Current Trip"
+          trips={getCurrentTrips()}
+          group="driver"
+          otherGroup="rider"
+        />
+
+        {/* changed */}
+        <TripCard
+          title="Requested Trips"
+          trips={getRequestedTrips()}
+          group="driver"
+          otherGroup="rider"
+        />
+
+        {/* changed */}
+        <TripCard
+          title="Recent Trips"
+          trips={getCompletedTrips()}
+          group="driver"
+          otherGroup="rider"
+        />
       </Col>
     </Row>
   );

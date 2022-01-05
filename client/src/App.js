@@ -1,16 +1,16 @@
-import React, { useState } from "react"; // changed
-import { Button, Container, Form, Navbar } from "react-bootstrap"; // changed
+import React, { useState } from "react";
+import axios from "axios";
+import { Button, Container, Form, Nav, Navbar } from "react-bootstrap"; // changed
 import { LinkContainer } from "react-router-bootstrap";
-import { Link, Route, Switch, Redirect } from "react-router-dom";
+import { Link, Redirect, Route, Switch } from "react-router-dom";
 
-import Driver from "./components/Driver.js";
-import Rider from "./components/Rider.js";
+import { isDriver, isRider } from "./services/AuthService"; // new
 import SignUp from "./components/SignUp";
 import LogIn from "./components/LogIn";
+import Driver from "./components/Driver";
+import Rider from "./components/Rider";
 
 import "./App.css";
-
-import axios from "axios";
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(() => {
@@ -63,13 +63,23 @@ function App() {
               <div className="middle-center">
                 <h1 className="landing logo">Taxi</h1>
                 {!isLoggedIn && (
-                  <Link id="signUp" className="btn btn-primary" to="/sign-up">
-                    Sign up
+                  <>
+                    <Link id="signUp" className="btn btn-primary" to="/sign-up">
+                      Sign up
+                    </Link>
+                    <Link id="logIn" className="btn btn-primary" to="/log-in">
+                      Log in
+                    </Link>
+                  </>
+                )}
+                {isRider() && (
+                  <Link className="btn btn-primary" to="/rider">
+                    Dashboard
                   </Link>
                 )}
-                {!isLoggedIn && (
-                  <Link id="logIn" className="btn btn-primary" to="/log-in">
-                    Log in
+                {isDriver() && (
+                  <Link className="btn btn-primary" to="/driver">
+                    Dashboard
                   </Link>
                 )}
               </div>
