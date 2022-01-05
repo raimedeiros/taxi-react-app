@@ -3,6 +3,8 @@ import { Button, Container, Form, Navbar } from "react-bootstrap"; // changed
 import { LinkContainer } from "react-router-bootstrap";
 import { Link, Route, Switch, Redirect } from "react-router-dom";
 
+import Driver from "./components/Driver.js";
+import Rider from "./components/Rider.js";
 import SignUp from "./components/SignUp";
 import LogIn from "./components/LogIn";
 
@@ -84,6 +86,8 @@ function App() {
               isLoggedIn ? <Redirect to="/" /> : <LogIn logIn={logIn} />
             }
           />
+          <Route path="/driver" render={() => <Driver />} />
+          <Route path="/rider" render={() => <Rider />} />
         </Switch>
       </Container>
     </div>
