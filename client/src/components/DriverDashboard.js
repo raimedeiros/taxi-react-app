@@ -3,9 +3,16 @@ import { Breadcrumb, Col, Row } from "react-bootstrap";
 
 import TripCard from "./TripCard";
 import { connect, getTrips, messages } from "../services/TripService";
+import { toast } from "react-toastify";
 
 function DriverDashboard(props) {
   const [trips, setTrips] = useState([]);
+
+  const updateToast = trip => {
+    if (trip.driver === null) {
+      toast.info(`Rider ${trip.rider.username} has requested a trip.`);
+    }
+  };
 
   useEffect(() => {
     connect();
@@ -14,6 +21,7 @@ function DriverDashboard(props) {
         ...prevTrips.filter(trip => trip.id !== message.data.id),
         message.data,
       ]);
+      updateToast(message.data); // new
     });
     return () => {
       if (subscription) {

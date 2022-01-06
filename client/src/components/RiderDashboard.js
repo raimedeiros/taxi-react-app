@@ -3,9 +3,22 @@ import { Breadcrumb, Col, Row } from "react-bootstrap";
 
 import TripCard from "./TripCard";
 import { connect, getTrips, messages } from "../services/TripService"; // changed
+import { toast } from "react-toastify";
 
 function RiderDashboard(props) {
   const [trips, setTrips] = useState([]);
+
+  const updateToast = trip => {
+    if (trip.status === "STARTED") {
+      toast.info(`Driver ${trip.driver.username} is coming to pick you up.`);
+    } else if (trip.status === "IN_PROGRESS") {
+      toast.info(
+        `Driver ${trip.driver.username} is headed to your destination.`,
+      );
+    } else if (trip.status === "COMPLETED") {
+      toast.info(`Driver ${trip.driver.username} has dropped you off.`);
+    }
+  };
 
   useEffect(() => {
     connect();
@@ -14,6 +27,7 @@ function RiderDashboard(props) {
         ...prevTrips.filter(trip => trip.id !== message.data.id),
         message.data,
       ]);
+      updateToast(message.data); // new
     });
     return () => {
       if (subscription) {
